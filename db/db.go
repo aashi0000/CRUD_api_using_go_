@@ -16,7 +16,8 @@ type album struct {
 var dbconn *gorm.DB
 var err error
 func ConnectDB(){
-	dsn := "root:abcd@1234@tcp(127.0.0.1:3306)/albums?charset=utf8mb4&parseTime=True&loc=Local"
+	//create a database albums first, the modify the connection string to your userid and password
+	dsn := "<YOUR-USERID>:<YOUR-PASSWORD>@tcp(127.0.0.1:3306)/albums?charset=utf8mb4&parseTime=True&loc=Local"
 	dbconn, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 	    panic("Cannot connect to DB")
