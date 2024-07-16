@@ -15,7 +15,7 @@ var DBconn models.DB
 var err error
 func ConnectDB(){
 	dsn := "root:abcd@1234@tcp(127.0.0.1:3306)/albums?charset=utf8mb4&parseTime=True&loc=Local"
-	dbconn, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	DBconn, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 	    panic("Cannot connect to DB")
 	} else{
