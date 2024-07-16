@@ -9,7 +9,8 @@ import (
 	"gorm.io/gorm"
 	"example/basic_api/db"
 	"example/basic_api/controllers"
-	"example/basic_api/mocks"
+	//"example/basic_api/mocks"
+	"example/basic_api/mocks1"
 	"example/basic_api/models"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -72,8 +73,8 @@ func TestGetAlbums(t *testing.T) {
 }
 
 
+
 func TestGetAlbumById(t *testing.T) {
-	
 	mockDB := new(mocks.DB)
 	db.SetDB(mockDB)
 	exp_album := models.Album{
@@ -94,7 +95,6 @@ func TestGetAlbumById(t *testing.T) {
 	fmt.Println("req: ",w.Code)
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.JSONEq(t, `{"id":"1", "title":"Blue Train", "artist":"John Coltrane", "price":56.99}`, w.Body.String())
-
 }
 
 
@@ -123,8 +123,21 @@ func TestAddAlbums(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, w.Code)
 	assert.JSONEq(t, reqBody, w.Body.String())
 }
+func TestAddAlbumsEmpty(t *testing.T) {
+	
+	mockDB := new(mocks.DB)
+	db.SetDB(mockDB)
+	mockDB.On("Create", mock.AnythingOfType("*models.Album")).Return(&gorm.DB{})
 
-
+	router := gin.Default()
+	router.POST("/albums", controllers.AddAlbums)
+	reqBody := ``
+	req, _ := http.NewRequest("POST", "/albums", strings.NewReader(reqBody))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 400, w.Code)
+}
 
 
 

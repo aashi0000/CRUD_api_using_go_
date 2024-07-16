@@ -39,7 +39,7 @@ func GetAlbumById(c *gin.Context) {
 func UpdateAlbum(c *gin.Context) {
 	id := c.Param("id")
 	var newalbum models.Album
-	if err := c.ShouldBindJSON(&newalbum); err != nil {
+	if err := c.BindJSON(&newalbum); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
