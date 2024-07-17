@@ -1,72 +1,82 @@
 package controllers
+
 import (
 	
-	"fmt"
-	"net/http"
+	"example/basic_api/logger"
 	"example/basic_api/models"
+	"example/basic_api/services"
+	
+	"net/http"
+
 	"github.com/gin-gonic/gin"
-	"example/basic_api/db"
 )
+
 func GetAlbums(c *gin.Context) {
-	var albums []models.Album
-	db.DBconn.Find(&albums)
+	log:=logger.NewLogger()
+	albums:=services.GetAlbums()
+	log.Info("Albums found and returned")
 	c.IndentedJSON(http.StatusOK, albums)
+	log.Info("Albums sent")
 }
 
 func AddAlbums(c *gin.Context) {
+	log:=logger.NewLogger()
 	var newalbum models.Album
 	if err := c.BindJSON(&newalbum); err != nil {
-		return
-	}
-	result:=db.DBconn.Create(&newalbum)
-	if result.Error!=nil{
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
-		return
-	}
-	c.IndentedJSON(http.StatusCreated, newalbum)
-}
-
-func GetAlbumById(c *gin.Context) {
-	var album models.Album
-	id := c.Param("id")
-	result:=db.DBconn.First(&album,id)
-	if result.Error!=nil{
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
-		return
-	}
-	c.IndentedJSON(http.StatusOK, album)
-}
-func UpdateAlbum(c *gin.Context) {
-	id := c.Param("id")
-	var newalbum models.Album
-	if err := c.BindJSON(&newalbum); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	fmt.Println(newalbum)
-    result:=db.DBconn.Model(&models.Album{}).Where("id = ?",id).Updates(models.Album{ID: id, Title: newalbum.Title, Artist: newalbum.Artist, Price: newalbum.Price})
-	//result:=dbconn.Model(&Album{}).Where("id = ?", id).Updates(newalbum)
-	if result.Error!=nil{
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+		log.Error("Album not in proper format")
 		return
 	}
 	
+	result:=services.AddAlbums(newalbum)
+	if result!=nil{
+		log.Error("Album not created")
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not created"})
+		return
+	}
+	c.IndentedJSON(http.StatusCreated, newalbum)
+	log.Info("Album created and sent")
+}
+
+func GetAlbumById(c *gin.Context) {
+	log:=logger.NewLogger()
+	id := c.Param("id")
+	album,err:=services.GetAlbumById(id)
+	if err!=nil{
+		log.Error("Album not found")
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+		return
+	}
+	log.Info("Album found and sent")
+	c.IndentedJSON(http.StatusOK, album)
+}
+func UpdateAlbum(c *gin.Context) {
+	log:=logger.NewLogger()
+	id := c.Param("id")
+	var newalbum models.Album
+	if err := c.BindJSON(&newalbum); err != nil {
+		log.Error("Album not in correct format")
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err:=services.UpdateAlbum(id,newalbum)
+	if err!=nil{
+		log.Error("Album not updated")
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not updated"})
+		return
+	}
 	c.IndentedJSON(http.StatusOK, newalbum)
+	log.Info("Album found and sent")
 }
 
 func DeleteAlbum(c *gin.Context) {
-
+	log:=logger.NewLogger()
 	id := c.Param("id")
-	if db.DBconn == nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "database connection is nil"})
-		return
-	}
-	result:=db.DBconn.Where("id = ?",id).Delete(&models.Album{})
-
-	//dbconn.Where("id = ?",id).Delete(&Album{})
-	if result.Error!=nil{
+	err:=services.DeleteAlbum(id)
+	if err!=nil{
+		log.Error("Album not found")
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
 		return
 	}
 	c.IndentedJSON(http.StatusOK,gin.H{"message": "album deleted successfully"} )
+	log.Info("Album found and deleted")
 }
