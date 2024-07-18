@@ -8,15 +8,13 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
 
  func TestGetAlbums(t *testing.T) {
-	log:=logger.NewLogger()
-	log.Info("Testing Getalbums")
+	 logger.MyLogger.Info("Testing Getalbums")
  	router := gin.Default()
  	mockDB := new(mocks.MockAlbumDB)
 	controllers.SetDB(mockDB)
@@ -45,14 +43,13 @@ import (
  			"price": 15.99
  		}
  	]`, w.Body.String())
-	log.Info("Test Completed")
+	 logger.MyLogger.Info("Test Completed")
  }
 
 
 
  func TestGetAlbumById(t *testing.T) {
-	log:=logger.NewLogger()
-	log.Info("Testing GetalbumById")
+	 logger.MyLogger.Info("Testing GetalbumById")
  	mockDB := new(mocks.MockAlbumDB)
  	controllers.SetDB(mockDB)
  	router := gin.Default()
@@ -62,13 +59,12 @@ import (
  	router.ServeHTTP(w, req)
  	assert.Equal(t, http.StatusOK, w.Code)
  	assert.JSONEq(t, `{"id":"1", "title":"Mocked Album", "artist":"Mocked Artist", "price":19.99}`, w.Body.String())
-	log.Info("Test Completed")
+	 logger.MyLogger.Info("Test Completed")
  }
 
 
  func TestAddAlbums(t *testing.T) {
-	log:=logger.NewLogger()
-	log.Info("Testing AddAlbums")
+	 logger.MyLogger.Info("Testing AddAlbums")
  	mockDB := new(mocks.MockAlbumDB)
  	controllers.SetDB(mockDB)
  	router := gin.Default()
@@ -80,12 +76,11 @@ import (
  	router.ServeHTTP(w, req)
  	assert.Equal(t, http.StatusCreated, w.Code)
  	assert.JSONEq(t, reqBody, w.Body.String())
-	log.Info("Test Completed")
+	 logger.MyLogger.Info("Test Completed")
  }
 
  func TestAddAlbumsEmpty(t *testing.T) {
-	log:=logger.NewLogger()
-	log.Info("Testing AddAlbums with empty input")
+	 logger.MyLogger.Info("Testing AddAlbums with empty input")
  	mockDB := new(mocks.MockAlbumDB)
  	controllers.SetDB(mockDB)
  	router := gin.Default()
@@ -96,12 +91,11 @@ import (
  	w := httptest.NewRecorder()
  	router.ServeHTTP(w, req)
  	assert.Equal(t, 400, w.Code)
-	log.Info("Test Completed")
+	 logger.MyLogger.Info("Test Completed")
  }
 
  func TestUpdateAlbum(t *testing.T){
-	log:=logger.NewLogger()
-	log.Info("Testing UpdateAlbum")
+	 logger.MyLogger.Info("Testing UpdateAlbum")
 	mockDB:=new(mocks.MockAlbumDB)
 	controllers.SetDB(mockDB)
 	router:=gin.Default()
@@ -113,12 +107,11 @@ import (
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.JSONEq(t, reqBody, w.Body.String())
-	log.Info("Test Completed")
+	 logger.MyLogger.Info("Test Completed")
  }
 
  func TestDeleteAlbum(t *testing.T){
-	log:=logger.NewLogger()
-	log.Info("Testing DeleteAlbum")
+	 logger.MyLogger.Info("Testing DeleteAlbum")
 	mockDB:=new(mocks.MockAlbumDB)
 	controllers.SetDB(mockDB)
 	router:=gin.Default()
@@ -128,14 +121,5 @@ import (
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.JSONEq(t, `{"message": "album deleted successfully"}`, w.Body.String())
-	log.Info("Test Completed")
+	 logger.MyLogger.Info("Test Completed")
  }
-
-
-
-
-
-
-
-
-

@@ -9,6 +9,7 @@ require (
 )
 
 require (
+	example/basic_api/config v0.0.0-00010101000000-000000000000 // indirect
 	example/basic_api/logger v0.0.0-00010101000000-000000000000 // indirect
 	example/basic_api/models v0.0.0-00010101000000-000000000000 // indirect
 	example/basic_api/services v0.0.0-00010101000000-000000000000 // indirect
@@ -57,3 +58,5 @@ replace example/basic_api/controllers => ./controllers
 replace example/basic_api/logger => ./logger
 
 replace example/basic_api/services => ./services
+
+replace example/basic_api/config => ./config
