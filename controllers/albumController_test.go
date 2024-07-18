@@ -1,50 +1,25 @@
 package controllers_test
 
- import (
- 	"fmt"
- 	"net/http"
- 	"net/http/httptest"
- 	"strings"
- 	"testing"
- 	"gorm.io/gorm"
- 	"example/basic_api/db"
- 	"example/basic_api/controllers"
- 	"example/basic_api/mocks1"
- 	"example/basic_api/models"
- 	//"example/basic_api/logger"
- 	"github.com/gin-gonic/gin"
- 	"github.com/stretchr/testify/assert"
- 	"github.com/stretchr/testify/mock"
- )
+import (
+	"example/basic_api/controllers"
+	"example/basic_api/logger"
+	"example/basic_api/mocks"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
+)
+
 
  func TestGetAlbums(t *testing.T) {
+	log:=logger.NewLogger()
+	log.Info("Testing Getalbums")
  	router := gin.Default()
- 	mockDB := new(mocks.DB)
- 	albums := []models.Album{	
-     {
-         ID: "1",
-         Title: "Blue Train",
-         Artist: "John Coltrane",
-         Price: 56.99,
-     },
-     {
-         ID: "2",
-         Title: "Jeru",
-         Artist: "Gerry Mulligan",
-         Price: 17.99,
-     },
-     {
-         ID: "3",
-        Title: "Clifford Brownn",
-         Artist: "Sarah",
-         Price: 15.99,
-     },
- 	}
- 	mockDB.On("Find", mock.Anything).Return(nil).Run(func(args mock.Arguments) {
- 		out := args.Get(0).(*[]models.Album)
- 		*out = albums
- 	})
- 	db.SetDB(mockDB)
+ 	mockDB := new(mocks.MockAlbumDB)
+	controllers.SetDB(mockDB)
  	router.GET("/albums", controllers.GetAlbums)
  	req, _ := http.NewRequest("GET", "/albums", nil)
  	w := httptest.NewRecorder()
@@ -53,82 +28,66 @@ package controllers_test
  	assert.JSONEq(t, `[
  		{
  			"id": "1",
- 			"title": "Blue Train",
- 			"artist": "John Coltrane",
- 			"price": 56.99
+ 			"title": "Album1",
+ 			"artist": "Artist1",
+ 			"price": 10.99
  		},
  		{
  			"id": "2",
- 			"title": "Jeru",
- 			"artist": "Gerry Mulligan",
- 			"price": 17.99
+ 			"title": "Album2",
+ 			"artist": "Artist2",
+ 			"price": 12.99
  		},
  		{
  			"id": "3",
- 			"title": "Clifford Brownn",
- 			"artist": "Sarah",
+ 			"title": "Album3",
+ 			"artist": "Artist3",
  			"price": 15.99
  		}
  	]`, w.Body.String())
+	log.Info("Test Completed")
  }
 
 
 
  func TestGetAlbumById(t *testing.T) {
- 	mockDB := new(mocks.DB)
- 	db.SetDB(mockDB)
- 	exp_album := models.Album{
-         ID: "1",
-         Title: "Blue Train",
-         Artist: "John Coltrane",
-         Price: 56.99,
-     }
- 	mockDB.On("First", mock.AnythingOfType("*models.Album"), "1").Run(func(args mock.Arguments) {
- 		album := args.Get(0).(*models.Album)
- 		*album = exp_album
- 	}).Return(&gorm.DB{})
+	log:=logger.NewLogger()
+	log.Info("Testing GetalbumById")
+ 	mockDB := new(mocks.MockAlbumDB)
+ 	controllers.SetDB(mockDB)
  	router := gin.Default()
  	router.GET("/albums/:id", controllers.GetAlbumById)
  	req, _ := http.NewRequest("GET","/albums/1" , nil)
  	w := httptest.NewRecorder()
  	router.ServeHTTP(w, req)
- 	fmt.Println("req: ",w.Code)
  	assert.Equal(t, http.StatusOK, w.Code)
- 	assert.JSONEq(t, `{"id":"1", "title":"Blue Train", "artist":"John Coltrane", "price":56.99}`, w.Body.String())
+ 	assert.JSONEq(t, `{"id":"1", "title":"Mocked Album", "artist":"Mocked Artist", "price":19.99}`, w.Body.String())
+	log.Info("Test Completed")
  }
 
 
  func TestAddAlbums(t *testing.T) {
-	
- 	mockDB := new(mocks.DB)
- 	db.SetDB(mockDB)
- 	newAlbum := models.Album{ID: "4", Title: "Album4", Artist: "Artist4", Price: 29.99}
-
- 	mockDB.On("Create", mock.AnythingOfType("*models.Album")).Run(func(args mock.Arguments) {
- 		result := args.Get(0).(*models.Album)
- 		*result = newAlbum
- 	}).Return(&gorm.DB{})
-
-	
+	log:=logger.NewLogger()
+	log.Info("Testing AddAlbums")
+ 	mockDB := new(mocks.MockAlbumDB)
+ 	controllers.SetDB(mockDB)
  	router := gin.Default()
  	router.POST("/albums", controllers.AddAlbums)
-
  	reqBody := `{"id":"4","title":"Album4","artist":"Artist4","price":29.99}`
  	req, _ := http.NewRequest("POST", "/albums", strings.NewReader(reqBody))
  	req.Header.Set("Content-Type", "application/json")
-
  	w := httptest.NewRecorder()
  	router.ServeHTTP(w, req)
-
  	assert.Equal(t, http.StatusCreated, w.Code)
  	assert.JSONEq(t, reqBody, w.Body.String())
+	log.Info("Test Completed")
  }
- func TestAddAlbumsEmpty(t *testing.T) {
-	
- 	mockDB := new(mocks.DB)
- 	db.SetDB(mockDB)
- 	mockDB.On("Create", mock.AnythingOfType("*models.Album")).Return(&gorm.DB{})
 
+ func TestAddAlbumsEmpty(t *testing.T) {
+	log:=logger.NewLogger()
+	log.Info("Testing AddAlbums with empty input")
+ 	mockDB := new(mocks.MockAlbumDB)
+ 	controllers.SetDB(mockDB)
  	router := gin.Default()
  	router.POST("/albums", controllers.AddAlbums)
  	reqBody := ``
@@ -137,6 +96,39 @@ package controllers_test
  	w := httptest.NewRecorder()
  	router.ServeHTTP(w, req)
  	assert.Equal(t, 400, w.Code)
+	log.Info("Test Completed")
+ }
+
+ func TestUpdateAlbum(t *testing.T){
+	log:=logger.NewLogger()
+	log.Info("Testing UpdateAlbum")
+	mockDB:=new(mocks.MockAlbumDB)
+	controllers.SetDB(mockDB)
+	router:=gin.Default()
+	router.PUT("/albums/:id",controllers.UpdateAlbum)
+	reqBody := `{"id":"1","title":"Updated Album 1","artist":"Updated Artist 1","price":29.99}`
+	req,_:=http.NewRequest("PUT","/albums/1",strings.NewReader(reqBody))
+	req.Header.Set("Content-Type", "application/json")
+	w:=httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.JSONEq(t, reqBody, w.Body.String())
+	log.Info("Test Completed")
+ }
+
+ func TestDeleteAlbum(t *testing.T){
+	log:=logger.NewLogger()
+	log.Info("Testing DeleteAlbum")
+	mockDB:=new(mocks.MockAlbumDB)
+	controllers.SetDB(mockDB)
+	router:=gin.Default()
+	router.DELETE("/albums/:id",controllers.DeleteAlbum)
+	req,_:=http.NewRequest("DELETE","/albums/1",nil)
+	w:=httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.JSONEq(t, `{"message": "album deleted successfully"}`, w.Body.String())
+	log.Info("Test Completed")
  }
 
 

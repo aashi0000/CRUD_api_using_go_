@@ -2,37 +2,46 @@ package services
 
 import (
 	"example/basic_api/models"
-	"example/basic_api/db"
+
+	"gorm.io/gorm"
 )
 
-func GetAlbums() ([]models.Album) {
+type GormAlbumDB struct{
+	DBconn *gorm.DB
+}
+func NewGormAlbumDB(db *gorm.DB) *GormAlbumDB{
+	return &GormAlbumDB{DBconn: db}
+}
+
+func (db *GormAlbumDB) GetAlbums() ([]models.Album) {
 	var albums []models.Album
 	db.DBconn.Find(&albums)
 	return albums
 }
 
-func AddAlbums(newalbum models.Album) error {
+//changesfrom error to albums,err return
+func (db *GormAlbumDB) AddAlbums(newalbum models.Album) (models.Album,error) {
 	result := db.DBconn.Create(&newalbum)
-	return result.Error
+	return newalbum,result.Error
 }
 
-func GetAlbumById(id string) (models.Album, error) {
+func (db *GormAlbumDB) GetAlbumById(id string) (models.Album, error) {
 	var album models.Album
 	result := db.DBconn.First(&album, id)
 	return album, result.Error
 }
-
-func UpdateAlbum(id string, newalbum models.Album) error {
+//changesfrom error to albums,err return
+func (db *GormAlbumDB) UpdateAlbum(id string, newalbum models.Album) (models.Album,error) {
 	var album models.Album
 	result := db.DBconn.First(&album, id)
 	if result.Error != nil {
-		return result.Error
+		return album,result.Error //????
 	}
 	result = db.DBconn.Model(&album).Updates(newalbum)
-	return result.Error
+	return newalbum,result.Error
 }
 
-func DeleteAlbum(id string) error {
+func (db *GormAlbumDB) DeleteAlbum(id string) error {
 	var album models.Album
 	result := db.DBconn.First(&album, id)
 	if result.Error != nil {

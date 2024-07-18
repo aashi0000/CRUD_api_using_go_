@@ -1,25 +1,29 @@
 package controllers
 
 import (
-	
+	"example/basic_api/db"
 	"example/basic_api/logger"
 	"example/basic_api/models"
-	"example/basic_api/services"
-	
+	//"example/basic_api/services"
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
+var MYalbumDB db.AlbumDB 
+func SetDB(temp db.AlbumDB) {
+		MYalbumDB = temp
+}
 
 func GetAlbums(c *gin.Context) {
+	//MYalbumDB=db.DB
 	log:=logger.NewLogger()
-	albums:=services.GetAlbums()
+	albums:=MYalbumDB.GetAlbums()
 	log.Info("Albums found and returned")
 	c.IndentedJSON(http.StatusOK, albums)
 	log.Info("Albums sent")
 }
 
 func AddAlbums(c *gin.Context) {
+	//MYalbumDB=db.DB
 	log:=logger.NewLogger()
 	var newalbum models.Album
 	if err := c.BindJSON(&newalbum); err != nil {
@@ -27,20 +31,22 @@ func AddAlbums(c *gin.Context) {
 		return
 	}
 	
-	result:=services.AddAlbums(newalbum)
-	if result!=nil{
+	//result:=services.AddAlbums(newalbum)
+	result,err:=MYalbumDB.AddAlbums(newalbum)
+	if err!=nil{
 		log.Error("Album not created")
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not created"})
 		return
 	}
-	c.IndentedJSON(http.StatusCreated, newalbum)
+	c.IndentedJSON(http.StatusCreated, result)
 	log.Info("Album created and sent")
 }
 
 func GetAlbumById(c *gin.Context) {
+	//MYalbumDB=db.DB
 	log:=logger.NewLogger()
 	id := c.Param("id")
-	album,err:=services.GetAlbumById(id)
+	album,err:=MYalbumDB.GetAlbumById(id)
 	if err!=nil{
 		log.Error("Album not found")
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
@@ -50,6 +56,7 @@ func GetAlbumById(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, album)
 }
 func UpdateAlbum(c *gin.Context) {
+	//MYalbumDB=db.DB
 	log:=logger.NewLogger()
 	id := c.Param("id")
 	var newalbum models.Album
@@ -58,20 +65,21 @@ func UpdateAlbum(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err:=services.UpdateAlbum(id,newalbum)
+	result,err:=MYalbumDB.UpdateAlbum(id,newalbum)
 	if err!=nil{
 		log.Error("Album not updated")
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not updated"})
 		return
 	}
-	c.IndentedJSON(http.StatusOK, newalbum)
+	c.IndentedJSON(http.StatusOK, result)
 	log.Info("Album found and sent")
 }
 
 func DeleteAlbum(c *gin.Context) {
+	//MYalbumDB=db.DB
 	log:=logger.NewLogger()
 	id := c.Param("id")
-	err:=services.DeleteAlbum(id)
+	err:=MYalbumDB.DeleteAlbum(id)
 	if err!=nil{
 		log.Error("Album not found")
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})

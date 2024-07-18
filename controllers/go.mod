@@ -9,15 +9,14 @@ replace example/basic_api/db => ../db
 require (
 	example/basic_api/db v0.0.0-00010101000000-000000000000
 	example/basic_api/logger v0.0.0-00010101000000-000000000000
-	example/basic_api/mocks1 v0.0.0-00010101000000-000000000000
+	example/basic_api/mocks v0.0.0-00010101000000-000000000000
 	example/basic_api/models v0.0.0-00010101000000-000000000000
-	example/basic_api/services v0.0.0-00010101000000-000000000000
 	github.com/gin-gonic/gin v1.10.0
 	github.com/stretchr/testify v1.9.0
-	gorm.io/gorm v1.25.11
 )
 
 require (
+	example/basic_api/services v0.0.0-00010101000000-000000000000 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
@@ -51,6 +50,7 @@ require (
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.7 // indirect
+	gorm.io/gorm v1.25.11 // indirect
 )
 
 replace example/basic_api/mocks => ../mocks

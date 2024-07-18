@@ -5,13 +5,13 @@ go 1.22.5
 require (
 	example/basic_api/controllers v0.0.0-00010101000000-000000000000
 	example/basic_api/db v0.0.0-00010101000000-000000000000
-	example/basic_api/services v0.0.0-00010101000000-000000000000
 	github.com/gin-gonic/gin v1.10.0
 )
 
 require (
 	example/basic_api/logger v0.0.0-00010101000000-000000000000 // indirect
 	example/basic_api/models v0.0.0-00010101000000-000000000000 // indirect
+	example/basic_api/services v0.0.0-00010101000000-000000000000 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
