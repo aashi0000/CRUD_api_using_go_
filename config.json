@@ -1,9 +1,8 @@
-
 {
     "database": {
-      "user": "<your_username>",
-      "password": "<your_password>",
-      "dbname": "<database_name>",
+      "user": "root",
+      "password": "abcd@1234",
+      "dbname": "albums",
       "host": "127.0.0.1",
       "port": 3306
     }

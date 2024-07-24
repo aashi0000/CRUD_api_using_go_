@@ -1,49 +1,63 @@
 package logger
-import(
+
+import (
+	"fmt"
 	"log"
 	"os"
+	"time"
 )
-type Logger interface{
+
+type Logger interface {
 	Debug(v ...interface{})
 	Info(v ...interface{})
 	Warn(v ...interface{})
 	Error(v ...interface{})
 }
-type CustomLogger struct{
+
+type CustomLogger struct {
 	debug *log.Logger
-	info *log.Logger
-	warn *log.Logger
-	err *log.Logger
+	info  *log.Logger
+	warn  *log.Logger
+	err   *log.Logger
 }
 
-//func to initialize
-func NewLogger() *CustomLogger{
+// ANSI escape codes for colors
+const (
+	colorReset  = "\033[0m"
+	colorRed    = "\033[31m"
+	colorGreen  = "\033[32m"
+	colorYellow = "\033[33m"
+	colorBlue   = "\033[34m"
+)
+
+func NewLogger() *CustomLogger {
 	return &CustomLogger{
-		debug: log.New(os.Stdout,"[DEBUG] : ",log.LstdFlags),
-		info:log.New(os.Stdout,"[INFO] : ",log.LstdFlags),
-		warn: log.New(os.Stdout,"[WARN] : ",log.LstdFlags),
-		err: log.New(os.Stderr,"[ERROR] : ",log.LstdFlags),
+		debug: log.New(os.Stdout, "", 0),
+		info:  log.New(os.Stdout, "", 0),
+		warn:  log.New(os.Stdout, "", 0),
+		err:   log.New(os.Stderr, "", 0),
 	}
 }
 
-//implementing debug method for logger
-func(l *CustomLogger) Debug(v ...interface{}){
-	l.debug.Println(v...)
-}
-func(l *CustomLogger) Info(v ...interface{}){
-	l.info.Println(v...)
-}
-func(l *CustomLogger) Warn(v ...interface{}){
-	l.warn.Println(v...)
-}
-func(l *CustomLogger) Error(v ...interface{}){
-	l.err.Println(v...)
+func formatLog(level string, color string, v ...interface{}) string {
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
+	return fmt.Sprintf("%s[%s] : %s %s%s", color, level, timestamp, fmt.Sprint(v...), colorReset)
 }
 
-
-var MyLogger= &CustomLogger{
-	debug: log.New(os.Stdout,"[DEBUG] : ",log.LstdFlags),
-	info:log.New(os.Stdout,"[INFO] : ",log.LstdFlags),
-	warn: log.New(os.Stdout,"[WARN] : ",log.LstdFlags),
-	err: log.New(os.Stderr,"[ERROR] : ",log.LstdFlags),
+func (l *CustomLogger) Debug(v ...interface{}) {
+	l.debug.Println(formatLog("DEBUG", colorBlue, v...))
 }
+
+func (l *CustomLogger) Info(v ...interface{}) {
+	l.info.Println(formatLog("INFO", colorGreen, v...))
+}
+
+func (l *CustomLogger) Warn(v ...interface{}) {
+	l.warn.Println(formatLog("WARN", colorYellow, v...))
+}
+
+func (l *CustomLogger) Error(v ...interface{}) {
+	l.err.Println(formatLog("ERROR", colorRed, v...))
+}
+
+var MyLogger = NewLogger()
