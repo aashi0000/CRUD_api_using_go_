@@ -5,6 +5,9 @@ import (
 	"log"
 	"os"
 	"time"
+	"runtime"
+	//"path/filepath"
+	//"strings"
 )
 
 type Logger interface {
@@ -29,7 +32,7 @@ const (
 	colorYellow = "\033[33m"
 	colorBlue   = "\033[34m"
 )
-
+//const projectDirName = "baic_api"
 func NewLogger() *CustomLogger {
 	return &CustomLogger{
 		debug: log.New(os.Stdout, "", 0),
@@ -39,9 +42,43 @@ func NewLogger() *CustomLogger {
 	}
 }
 
+// func formatLog(level string, color string, v ...interface{}) string {
+// 	timestamp := time.Now().Format("2006-01-02 15:04:05")
+// 	return fmt.Sprintf("%s[%s] : %s %s%s", color, level, timestamp, fmt.Sprint(v...), colorReset)
+// }
+
+
+func getCallingFunction() string {
+	pc, _, _, _ := runtime.Caller(3) // Adjust the depth to get the correct calling function
+	fn := runtime.FuncForPC(pc)
+	funcName := "unknown"
+	if fn != nil {
+		funcName = fn.Name()
+	}
+	return funcName
+}
+
 func formatLog(level string, color string, v ...interface{}) string {
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
-	return fmt.Sprintf("%s[%s] : %s %s%s", color, level, timestamp, fmt.Sprint(v...), colorReset)
+	// _, file, line, ok := runtime.Caller(3) // Adjust the depth as needed
+	// if ok {
+	// 	projectRoot, err := getProjectRoot()
+	// 	if err == nil {
+	// 		relPath, err := filepath.Rel(projectRoot, file)
+	// 		if err == nil && !strings.HasPrefix(relPath, "..") && !filepath.IsAbs(relPath) {
+	// 			file = relPath
+	// 		} else {
+	// 			file = filepath.Base(file)
+	// 		}
+	// 	} else {
+	// 		file = filepath.Base(file)
+	// 	}
+
+		funcName := getCallingFunction()
+
+		return fmt.Sprintf("%s[%s] : %s | %s() | %s%s", color, level, timestamp,  funcName, fmt.Sprint(v...), colorReset)
+	//}
+	//return fmt.Sprintf("%s[%s] : %s %s%s", color, level, timestamp, fmt.Sprint(v...), colorReset)
 }
 
 func (l *CustomLogger) Debug(v ...interface{}) {
